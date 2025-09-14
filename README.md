@@ -122,6 +122,12 @@ RPS
 | Обновление профиля              |                  |                   |
 | Просмотр предметов              |                  |                   |
 
+Черновые данные, может пригодятся:
+- Созданных торговых предложений за месяц: 58M [^4]
+- Продано игр за год: 132М [^5]
+- Новых игр за месяц: 1500 [^6]
+- На 2017 год: 291 млн пользователей (прирост за год: 63 млн) [^7]
+
 ## Список использованных источников
 [^1]: [Steamworks](https://partner.steamgames.com/)
 [^2]: [Steam Statistics 2025: Users & Revenue Data](https://www.demandsage.com/steam-statistics/#:~:text=Steam%20has%20132%20million%20monthly%2Ctime%20high%20of%20%2410.8%20billion)
@@ -130,9 +136,3 @@ RPS
 [^5]: [Steam Market Data | Video Game Insights](https://app.sensortower.com/vgi/steam-market-data)
 [^6]: [Steam Game Release Summary by Year · SteamDB](https://steamdb.info/stats/releases/)
 [^7]: [Steam in 2017](https://media.gdcvault.com/gdc2018/presentations/Steam_in_2017.pdf)
-
-Черновые данные, может пригодятся:
-- Созданных торговых предложений за месяц: 58M [^4]
-- Продано игр за год: 132М [^5]
-- Новых игр за месяц: 1500 [^6]
-- На 2017 год: 291 млн пользователей (прирост за год: 63 млн) [^7]
