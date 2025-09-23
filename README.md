@@ -252,7 +252,7 @@ RPS
 Дополнительно к DNS балансировке в высоконагруженных регионах (Азия, Северная Америка, Европа) можно воспользоваться BGP Anycast для более точного выбора датацентра.
 
 ## Список использованных источников
-[^1]: [Steamworks](https://partner.steamgames.com/)
+[^1]: [Steamworks ](https://partner.steamgames.com/)
 [^2]: [Steam Statistics 2025: Users & Revenue Data](https://www.demandsage.com/steam-statistics/#:~:text=Steam%20has%20132%20million%20monthly%2Ctime%20high%20of%20%2410.8%20billion)
 [^3]: [Steam Users by Country 2025](https://worldpopulationreview.com/country-rankings/steam-users-by-country)
 [^4]: [Trade.TF - Trade Volume](https://www.trade.tf/volume)
