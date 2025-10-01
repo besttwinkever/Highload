@@ -292,9 +292,6 @@ RPS
 ### Терминация SSL
 Будет происходить на L7 уровне в Nginx. Дополнительно будем использовать session ticket.
 
-
-### Расчёт количества балансировщиков
-
 ## Список использованных источников
 [^1]: [Steamworks ](https://partner.steamgames.com/)
 [^2]: [Steam Statistics 2025: Users & Revenue Data](https://www.demandsage.com/steam-statistics/#:~:text=Steam%20has%20132%20million%20monthly%2Ctime%20high%20of%20%2410.8%20billion)
