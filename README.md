@@ -302,7 +302,7 @@ L4 балансировка не требуется, т.к. L7 балансир�
 
 ## 5. Логическая схема БД
 Схема представлена на скриншоте ниже  
-<img width="2517" height="1423" alt="steam (1)" src="https://github.com/user-attachments/assets/503363b5-0bb5-4d24-b86f-361186fabe8e" />
+<img width="2517" height="1423" alt="steam (2)" src="https://github.com/user-attachments/assets/4469f641-dc8b-4768-868d-6b420a778d77" />
 
 ## Список использованных источников
 [^1]: [Steamworks ](https://partner.steamgames.com/)
