@@ -336,16 +336,16 @@ L4 балансировка не требуется, т.к. L7 балансир�
 ### Размеры данных
 | Таблица         | Расчет размера строки                                                                                                                                                   | Размер строки | Всего строк | Размер таблицы |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-------------|----------------|
-| User            | 8 (id) + 16 (username) + 32 (email) + 16 (password_hash) + 32 (profile_name) + 128 байт (profile_description) + 128 байт (avatar_url) + 8 (created_at) + 8 (updated_at) | 504 байт      | 982М        | 494.93 GB      |
+| User            | 8 (id) + 16 (username) + 32 (email) + 16 (password_hash) + 32 (profile_name) + 128 байт (profile_description) + 128 байт (avatar_url) + 1 (is_deleted) + 8 (created_at) + 8 (updated_at) | 377 байт      | 982М        | 370.21 GB      |
 | UserSession     | 8 (id) + 8 (user_id) + 32 (token) + 8 (expires_at) +  8 (created_at) + 8 (updated_at)                                                                                   | 72 байт       | 1.964 млрд  | 141.41 GB      |
 | Currency        | 4 (id) + 4 (short_name) + 16 (display_name) + 4 (usd_currency) + 8 (created_at) + 8 (updated_at)                                                                        | 44 байт       | 47 [^13]    | 2.068 KB       |
 | UserWallet      | 8 (id) + 8 (user_id) + 4 (currency_id) + 4 (balance) + 8 (created_at) + 8 (updated_at)                                                                                  | 40 байт       | 982М        | 39.28 GB       |
 | Developer       | 4 (id) + 16 (name) + 128 (description) + 8 (created_at) + 8 (updated_at)                                                                                                | 164 байт      | 44000 [^14] | 7.216 MB       |
-| Game            | 4 (id) + 4 (developer_id) + 16 (title) + 128 (description) + 128 (header_image_url) + 8 (release_date) + 8 (created_at) + 8 (updated_at)                                | 304 байт      | 114662      | 34.8572 MB     |
+| Game            | 4 (id) + 4 (developer_id) + 16 (title) + 128 (description) + 128 (header_image_url) + 8 (release_date) + 1 (is_deleted) + 8 (created_at) + 8 (updated_at)                                | 305 байт      | 114662      | 34.9719 MB     |
 | GamePrice       | 8 (id) + 4 (game_id) + 4 (currency_id) + 4 (price) + 8 (created_at) + 8 (updated_at)                                                                                    | 36 байт       | 5.4M        | 194.4 MB       |
 | GameScreenshot  | 8 (id) + 4 (game_id) + 128 (screenshot_url) + 8 (created_at) + 8 (updated_at)                                                                                           | 156 байт      | 917296      | 143.1 MB       |
 | UserLibrary     | 4 (game_id) + 8 (user_id) + 4 (playtime_hours) + 8 (last_played_at) + 8 (created_at) + 8 (updated_at)                                                                   | 40 байт       | 10.8 млрд   | 432 GB         |
-| Item            | 8 (id) + 4 (game_id) + 16 (name) + 128 (description) + 128 (image_url) + 8 (created_at) + 8 (updated_at)                                                                | 300 байт      | 5М          | 1.5 GB         |
+| Item            | 8 (id) + 4 (game_id) + 16 (name) + 128 (description) + 128 (image_url) + 1 (is_deleted) + 8 (created_at) + 8 (updated_at)                                                                | 301 байт      | 5М          | 1.505 GB         |
 | UserInventory   | 8 (id) + 8 (item_id) + 8 (user_id) + 8 (status) + 1 (is_tradeable) + 1 (is_marketable) + 8 (created_at) + 8 (updated_at)                                                | 50 байт       | 56M         | 2.8 GB         |
 | MarketListing   | 8 (id) + 8 (inventory_item_id) + 4 (price) + 8 (created_at) + 8 (updated_at)                                                                                            | 36 байт       | 28M         | 1.008 GB       |
 | GameReview      | 8 (id) + 8 (user_id) + 4 (game_id) + 1 (is_positive) + 256 (text) + 8 (created_at) + 8 (updated_at)                                                                     | 293 байт      | 43.3M [^15] | 12.6869 GB     |
@@ -380,31 +380,74 @@ L4 балансировка не требуется, т.к. L7 балансир�
 Схема представлена на скриноте ниже  
 <img width="2470" height="1569" alt="steam physical с пометками" src="https://github.com/user-attachments/assets/c537fec2-17f2-4e85-bb66-aa0ee1e79d28" />
 
+В TradeOffer в items лежит JSON, где ключ - ID пользователя, а значение - массив предметов с полями:
+- inventory_item_id bigint - ID предмета в инвентаре
+- item_id bigint - название предмета
+- item_name varchar - имя предмета
+- item_description text - описание пердмета
+- item_image_url varchar - URL картинки предмета  
+
 ### Денормализация
 - UserWallet удален, информация о валюте и балансе внесена в User для избежания JOIN
 - В User добавлены поля games_count, inventory_items_count, reviews_given_count для избежания операций COUNT
 - Таблица Currency сохранена. Она очень незначительна по размеру и ей можно принебречь. Предполагается что она будет единожды подгружаться приложением при инициализации и сохраняться в ОЗУ.
+- Таблица GameScreenshots удалена. Скриншоты будут храниться в JSON формате в Game
 - Добавлена таблица GameDetails. В нее вынесена вся информация об игре, разработчике, числе отзывов, скриншотах. Она будет использоваться при запросе просмотра игры. Таблица Game и связанные с ней будут в панели разработчика.
 - В UserLibrary добавлены поля game_title и game_header_image_url для избежания JOIN
 - В UserInventory добавлены поля game_id, game_title, item_name, item_description, item_image_url для избежания JOIN
 - В MarketListing добавлены поля game_id, game_title, item_name, item_description, item_image_url, seller_user_id, seller_profile_name для избежания JOIN
 - В TradeOffer добавлены поля from_user_name, to_user_name для избежания JOIN
-- В TradeOfferItem добавлены поля from_user_id, item_id, item_name, item_description, item_image_url для избежания JOIN
+- TradeOfferItem удален. Его поля вынесены в TradeOffer для избежания JOIN (подробнее описано выше)
+
+#### Размеры после денормализации
+| Таблица         | Расчет размера строки                                                                                                                                                   | Размер строки | Всего строк | Размер таблицы |
+|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-------------|----------------|
+| User            | 8 (id) + 16 (username) + 32 (email) + 16 (password_hash) + 32 (profile_name) + 128 (profile_description) + 128 (avatar_url) + 1 (is_deleted) + 4 (currency_id) + 4 (balance) + 4 (games_count) + 4 (inventory_items_count) + 4 (reviews_given_count) + 8 (created_at) + 8 (updated_at) | 397 байт      | 982М        | 389.85 GB      |
+| UserSession     | 8 (id) + 8 (user_id) + 32 (token) + 8 (expires_at) +  8 (created_at) + 8 (updated_at)                                                                                   | 72 байт       | 1.964 млрд  | 141.41 GB      |
+| Currency        | 4 (id) + 4 (short_name) + 16 (display_name) + 4 (usd_currency) + 8 (created_at) + 8 (updated_at)                                                                        | 44 байт       | 47 [^13]    | 2.068 KB       |
+| Developer       | 4 (id) + 16 (name) + 128 (description) + 8 (created_at) + 8 (updated_at)                                                                                                | 164 байт      | 44000 [^14] | 7.216 MB       |
+| Game            | 4 (id) + 4 (developer_id) + 16 (title) + 128 (description) + 128 (header_image_url) + 8 (release_date) + 1024 (screenshots) + 1 (is_deleted) + 8 (created_at) + 8 (updated_at)                                | 1329 байт      | 114662      | 152.39 MB     |
+| GameDetails     | 4 (game_id) + 16 (title) + 128 (description) + 128 (header_image_url) + 8 (release_date) + 1024 (screenshots) + 1 (is_deleted) + 4 (developer_id) + 16 (developer_name) + 4 (reviews_total_count) + 4 (reviews_positive_count) + 8 (created_at) + 8 (updated_at) | 1353 байт | 114662 | 155.14 MB
+| GamePrice       | 8 (id) + 4 (game_id) + 4 (currency_id) + 4 (price) + 8 (created_at) + 8 (updated_at)                                                                                    | 36 байт       | 5.4M        | 194.4 MB       |
+| UserLibrary     | 4 (game_id) + 8 (user_id) + 16 (game_title) + 4 (playtime_hours) + 8 (last_played_at) + 8 (created_at) + 8 (updated_at)                                                                   | 56 байт       | 10.8 млрд   | 604.8 GB         |
+| Item            | 8 (id) + 4 (game_id) + 16 (name) + 128 (description) + 128 (image_url) + 8 (created_at) + 8 (updated_at)                                                                | 300 байт      | 5М          | 1.5 GB         |
+| UserInventory   | 8 (id) + 8 (item_id) + 8 (user_id) + 8 (status) + 4 (game_id) + 8 (game_title) + 16 (item_name) + 128 (item_description) + 128 (item_image_url) + 1 (is_tradeable) + 1 (is_marketable) + 8 (created_at) + 8 (updated_at)                                                | 334 байт       | 56M         | 18.704 GB         |
+| MarketListing   | 8 (id) + 8 (inventory_item_id) + 4 (price) + 8 (seller_user_id) + 16 (seller_profile_name) + 4 (game_id) + 16 (game_title) + 16 (item_name) + 128 (item_description) + 128 (item_image_url) + 8 (created_at) + 8 (updated_at)                                                                                            | 352 байт       | 28M         | 9.856 GB       |
+| GameReview      | 8 (id) + 8 (user_id) + 4 (game_id) + 1 (is_positive) + 256 (text) + 8 (created_at) + 8 (updated_at)                                                                     | 293 байт      | 43.3M [^15] | 12.6869 GB     |
+| TradeOffer      | 8 (id) + 8 (from_user_id) + 8 (to_user_id) + 16 (from_user_name) + 16 (to_user_name) + (items) + 8 (status) + 8 (created_at) + 8 (updated_at)                                                                               | 1440 байт       | 7.59 млрд   | 10.9296 TB |
 
 ### Индексы
-| Таблица       | Индекс                                           | Пояснение                       | Размер одной строки | Всего строк | Итоговый размер |
-|---------------|--------------------------------------------------|---------------------------------|---------------------|-------------|-----------------|
-| User          | idx_user_username (username)                     | Быстрая аутентификация          | 16 байт             | 982M        | 15.712 GB       |
-| User          | idx_user_email (email)                           | Быстрая регистрация/сброс       | 32 байта            | 982M        | 31.424 GB       |
-| UserLibrary   | idx_user_library_by_user (user_id)               | Просмотр игр пользователя       | 8 байт              | 10.8 млрд   | 86.4 GB         |
-| UserInventory | idx_inventory_by_user_game (user_id, game_id)    | Фильтрация по конкретной игре   | 16 байт (8+8)       | 56M         | 896 MB          |
-| Game          | idx_games_by_developer (developer_id)            | Поиск игр по разработчику       | 4 байта             | 114662      | 447.9 KB        |
-| GameReview    | idx_game_review (game_id)                        | Отзывы по игре                  | 4 байта             | 43.3M       | 173.2 MB        |
-| MarketListing | idx_market_by_game (game_id)                     | Предметы по игре                | 4 байта             | 28M         | 112 MB          |
-| TradeOffer    | idx_tradeoffer_from_user (from_user_id, status)  | Поиск исходящих предложений     | 16 байт (8+8)       | 7.59 млрд   | 121.44 GB       |
-| TradeOffer    | idx_tradeoffer_to_user (to_user_id, status)      | Поиск входящих предложений      | 16 байт (8+8)       | 7.59 млрд   | 121.44 GB       |
+| Таблица       | Индекс                                                   | Тип индекса     | Пояснение                                            | Размер одной строки | Всего строк | Итоговый размер |
+|---------------|----------------------------------------------------------|-----------------|------------------------------------------------------|---------------------|-------------|-----------------|
+| User          | idx_user_id (id)                                         | B-Tree          | Доступ по ID                                         | 8 байт              | 982M        | 7.856 GB        |
+| User          | idx_user_username (username)                             | B-Tree          | Быстрый поиск при входе в систему                    | 16 байт             | 982M        | 15.712 GB       |
+| User          | idx_user_email (email)                                   | B-Tree          | Быстрый поиск при регистрация/сбросе пароля          | 32 байта            | 982M        | 31.424 GB       |
+| UserSession   | idx_session_id (id)                                      | B-Tree          | Уникальный идентификатор сессии                      | 8 байт              | 1.964 млрд  | 15.712 GB       |
+| UserSession   | idx_session_token (token)                                | B-Tree          | Поиск сессии по токену                               | 32 байт             | 1.964 млрд  | 62.848 GB       |
+| UserSession   | idx_session_user_id (user_id)                            | B-Tree          | Поиск всех активных сессий пользователя              | 8 байт              | 1.964 млрд  | 15.712 GB       |
+| Currency      | idx_currency_id (id)                                     | B-Tree          | Доступ по ID                                         | 4 байт              | 47          | 188 байт        |
+| Developer     | idx_developer_id (id)                                    | B-Tree          | Доступ по ID                                         | 4 байт              | 44000       | 176 KB          |
+| Game          | idx_game_id (id)                                         | B-Tree          | Доступ по ID                                         | 4 байт              | 114662      | 458.65 KB       |
+| Game          | idx_game_developer_id (id)                               | B-Tree          | Поиск игр разработчика                               | 4 байт              | 114662      | 458.65 KB       |
+| GameDetails   | idx_game_details_id (game_id)                            | B-Tree          | Доступо по ID                                        | 4 байт              | 114662      | 458.65 KB       |
+| GamePrice     | idx_game_price_id (id)                                   | B-Tree          | Доступ по ID                                         | 8 байт              | 5.4М        | 43.2 MB         |
+| GamePrice     | idx_game_price_game_currency (game_id, currency_id)      | B-Tree          | Поиск цены для игры и валюты                         | 8 байт              | 5.4М        | 43.2 MB         |
+| UserLibrary   | idx_user_library_user_game_id (user_id, game_id)         | B-Tree          | Быстрый поиск игры в библиотеке пользовател          | 12 байт             | 10.8 млрд   | 129.6 GB        |
+| UserLibrary   | idx_user_library_user_game_id (user_id, last_played_at)  | B-Tree          | Недавно-запущенные игры                              | 16 байт             | 10.8 млрд   | 172.8 GB        |
+| Item          | idx_item_id (id)                                         | B-Tree          | Доступ по ID                                         | 8 байт              | 5М          | 40 MB           |
+| Item          | idx_item_game_id (game_id)                               | B-Tree          | Поиск предметов в конкретной игре                    | 8 байт              | 5М          | 40 MB           |
+| UserInventory | idx_user_inventory_id (id)                               | B-Tree          | Доступ по ID                                         | 8 байт              | 56М         | 448 MB          |
+| UserInventory | idx_user_inventory_user_game_id (user_id, game_id)       | B-Tree          | Инвентарь пользователя по игре                       | 12 байт             | 56М         | 672 MB          |
+| MarketListing | idx_market_listing_id (id)                               | B-Tree          | Доступ по ID                                         | 8 байт              | 28М         | 224 MB          |
+| MarketListing | idx_market_listing_id (item_name, game_id, price)        | B-Tree          | Поиск по предмету, игре с сортировкой по цене        | 24 байт             | 28М         | 672 MB          |
+| MarketListing | idx_market_listing_id (seller_user_id)                   | B-Tree          | Просмотр лотов продавца                              | 8 байт              | 28М         | 224 MB          |
+| GameReview    | idx_game_review_id (id)                                  | B-Tree          | Доступ по ID                                         | 8 байт              | 43.3M       | 346.4 MB        |
+| GameReview    | idx_game_review_game_id_created_at (game_id, created_at) | B-Tree          | Отображение отзывов с сортировкой по дате            | 12 байт             | 43.3M       | 519.6 MB        |
+| TradeOffer    | idx_trade_offer_id (id)                                  | B-Tree          | Доступ по ID                                         | 8 байт              | 7.59 млрд   | 60.72 GB        |
+| TradeOffer    | idx_trade_offer_from_user_id (from_user_id, created_at)  | B-Tree          | Просмотр исходящих предложений с сортировкой по дате | 16 байт             | 7.59 млрд   | 121.44 GB       |
+| TradeOffer    | idx_trade_offer_to_user_id (to_user_id, created_at)      | B-Tree          | Просмотр входящих предложений с сортировкой по дате  | 16 байт             | 7.59 млрд   | 121.44 GB       |
 
-Заметим, что индекс TradeOffer весит 121.44 GB. Для уменьшения индекса, можно партицировать таблицу помесячно.  
+
 Согласно [^4] создается 58M торговых предложений за месяц. Тогда размер индекса будет равен: 58M * 16 байт = 885 MB.
 
 #### Elasticsearch
