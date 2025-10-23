@@ -510,7 +510,6 @@ L4 балансировка не требуется, т.к. L7 балансир�
 
 ### Клиентские библиотеки
 - MongoDB: [mongo-go-driver](https://github.com/mongodb/mongo-go-driver)
-- PostgreSQL: [pgx](https://github.com/jackc/pgx)
 - Redis: [go-redis](https://github.com/redis/go-redis)
 - Tarantool: [go-tarantool](https://github.com/tarantool/go-tarantool)
 - Cassandra [gocsql-driver](https://github.com/apache/cassandra-gocql-driver)
