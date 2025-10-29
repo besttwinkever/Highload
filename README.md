@@ -386,10 +386,9 @@ L4 балансировка не требуется, т.к. L7 балансир�
 Схема представлена на скриноте ниже  
 <img width="2411" height="1691" alt="image" src="https://github.com/user-attachments/assets/12a2bc36-f635-436b-9dbe-abf3f9d92b1e" />
 
-В TradeOffer в item лежит JSON, где item предмет с полями:
+В TradeOffer в item_details лежит JSON, где item_details предмет с полями:
 - inventory_item_id bigint - ID предмета в инвентаре
 - item_id bigint - название предмета
-- item_name varchar - имя предмета
 - item_description text - описание пердмета
 - item_image_url varchar - URL картинки предмета  
 
