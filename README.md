@@ -384,7 +384,7 @@ L4 балансировка не требуется, т.к. L7 балансир�
 
 ## 6. Физическая схема БД
 Схема представлена на скриноте ниже  
-<img width="2411" height="1691" alt="image" src="https://github.com/user-attachments/assets/0c241b21-5b22-4e08-9cd2-2a3d176ae42f" />
+<img width="2411" height="1691" alt="image" src="https://github.com/user-attachments/assets/12a2bc36-f635-436b-9dbe-abf3f9d92b1e" />
 
 В TradeOffer в item лежит JSON, где item предмет с полями:
 - inventory_item_id bigint - ID предмета в инвентаре
