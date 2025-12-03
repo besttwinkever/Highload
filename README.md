@@ -531,7 +531,7 @@ Cassandra использует Ключ Партицирования (Partition 
 - Логгирование ошибок. Каждый запрос имеет уникальный ID, благодаря которому можно будет сделать трассировку по логам.
 
 ## 10. Схема проекта
-![Steam-second](https://github.com/user-attachments/assets/c8aaf7b4-e4ef-41ec-8670-b8495d193c49)
+<img width="2342" height="3471" alt="Steam-фикс стрелок drawio" src="https://github.com/user-attachments/assets/0bbc0558-2ebe-482c-a9b2-fc0b310a0fb3" />
 
 ### Пояснение Saga
 1. Магазин игр
